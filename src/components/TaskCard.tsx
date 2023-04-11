@@ -9,8 +9,11 @@ interface Props {
 
 const TaskCard = ({onClick, task}: Props) => {
     const checkboxChangeHandle = (event: React.ChangeEvent<HTMLInputElement>) => {
-        event.preventDefault();
+        task.done = event.target.checked;
+
         onClick(task);
+
+        console.table(task);
     };
 
     return <Card className="m-3">
@@ -28,8 +31,8 @@ const TaskCard = ({onClick, task}: Props) => {
                 </thead>
                 <tbody>
                 <tr>
-                    <td>{task.creationDate.toISOString()}</td>
-                    <td>{task.updateDate.toISOString()}</td>
+                    <td>{new Date(task.creationDate).toISOString()}</td>
+                    <td>{new Date(task.updateDate).toISOString()}</td>
                 </tr>
                 </tbody>
             </Table>
