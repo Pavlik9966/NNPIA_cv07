@@ -1,6 +1,7 @@
 import {Task} from "../data/init-data";
 import {useEffect, useState} from "react";
 import TaskList from "../components/TaskList";
+import axios from "axios/index";
 
 interface Props {
     tasks: Array<Task>;
@@ -26,10 +27,12 @@ const Tasks = () => {
 
     const fetchData = async () => {
         const backendUrl = import.meta.env.BACKEND_URL;
-        let response = null;
+        // let response = null;
+        let responseAxios = null;
 
         try {
-            response = await fetch(`${backendUrl}/task`);
+            // response = await fetch(`${backendUrl}/task`);
+            responseAxios = await axios.get(`${backendUrl}/task`);
         } catch (e: any) {
             setError(e.message);
             setTasks([]);
@@ -37,9 +40,14 @@ const Tasks = () => {
 
         setLoading(false);
 
-        if (response && response.ok) {
-            const tasks = await response.json();
-            setTasks(tasks);
+        // if (response && response.ok) {
+        //     const tasks = await response.json();
+        //     setTasks(tasks);
+        // }
+
+        if (responseAxios && responseAxios.status === 200) {
+            const tasksAxios = await responseAxios.data as Array<Task>;
+            setTasks(tasksAxios)
         }
     };
 
