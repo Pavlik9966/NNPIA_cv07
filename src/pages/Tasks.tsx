@@ -1,39 +1,61 @@
 import {Task} from "../data/init-data";
-import TaskCard from "../components/TaskCard";
-import React, {useState} from "react";
-import {Col, Row} from "react-bootstrap";
+import {useEffect, useState} from "react";
+import TaskList from "../components/TaskList";
+import axios from "axios/index";
 
 interface Props {
     tasks: Array<Task>;
 }
 
-const Tasks = ({tasks}: Props) => {
-    const [taskList, setTaskList] = useState<Array<Task>>(tasks)
+/*
+ * CORS (Cross-Origin Resource Sharing) is a web browser security policy that controls how websites can communicate
+ * with resources on other domains. CORS allows websites to access limited resources on other sources based on
+ * defined rules. This mechanism prevents Cross-Site Scripting (XSS) and Cross-Site Request Forgery (CSRF) attacks by
+ * enforcing policies that allow only appropriate sources to access restricted resources on the server. In summary,
+ * CORS policy helps protect web applications from XSS and CSRF attacks by setting rules for accessing resources from
+ * other domains.
+ * */
 
-    const taskClickHandle = (task: Task) => {
-        task.done = !task.done;
-        setTaskList([...taskList]);
-    }
+const Tasks = () => {
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean | null>(true);
+    const [tasks, setTasks] = useState<Task[]>([]);
 
-    return <section>
-        <Row className="text-center">
-            <Col>
-                <h1>TODO List</h1>
-            </Col>
-        </Row>
-        <Row className="text-center">
-            <Col>
-                <h2>Current tasks</h2>
-                {taskList.filter(task => !task.done)
-                    .map(task => <TaskCard key={task.id} task={task} onClick={taskClickHandle}/>)}
-            </Col>
-            <Col>
-                <h2>Done tasks</h2>
-                {taskList.filter(task => task.done)
-                    .map(task => <TaskCard key={task.id} task={task} onClick={taskClickHandle}/>)}
-            </Col>
-        </Row>
-    </section>
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        const backendUrl = import.meta.env.BACKEND_URL;
+        // let response = null;
+        let responseAxios = null;
+
+        try {
+            // response = await fetch(`${backendUrl}/task`);
+            responseAxios = await axios.get(`${backendUrl}/task`);
+        } catch (e: any) {
+            setError(e.message);
+            setTasks([]);
+        }
+
+        setLoading(false);
+
+        // if (response && response.ok) {
+        //     const tasks = await response.json();
+        //     setTasks(tasks);
+        // }
+
+        if (responseAxios && responseAxios.status === 200) {
+            const tasksAxios = await responseAxios.data as Array<Task>;
+            setTasks(tasksAxios)
+        }
+    };
+
+    return <div>
+        {error && <div className="alert alert-danger">{error}</div>}
+        {loading && <div className="alert alert-danger">Loading...</div>}
+        <TaskList tasks={tasks}/>
+    </div>
 };
 
 export default Tasks;
