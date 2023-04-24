@@ -1,7 +1,10 @@
 import {Task} from "../data/init-data";
 import {useEffect, useState} from "react";
 import TaskList from "../components/TaskList";
-import axios from "axios/index";
+import axios from "axios";
+import './Tasks.css'
+import {useSelector} from "react-redux";
+import {RootState} from "../features/store";
 
 interface Props {
     tasks: Array<Task>;
@@ -18,12 +21,18 @@ interface Props {
 
 const Tasks = () => {
     const [error, setError] = useState<string | null>(null);
+    const isLoggedIn = useSelector((state: RootState) => state.login.value);
     const [loading, setLoading] = useState<boolean | null>(true);
     const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        console.log(`State changed in ${Tasks.name}: ${isLoggedIn}.`);
+
+        if (isLoggedIn) {
+            setLoading(true);
+            fetchData();
+        }
+    }, [isLoggedIn]);
 
     const fetchData = async () => {
         const backendUrl = import.meta.env.BACKEND_URL;
@@ -51,7 +60,7 @@ const Tasks = () => {
         }
     };
 
-    return <div>
+    return <div className="tasks">
         {error && <div className="alert alert-danger">{error}</div>}
         {loading && <div className="alert alert-danger">Loading...</div>}
         <TaskList tasks={tasks}/>
